@@ -1,6 +1,6 @@
 import torch
 from torch import nn
-from QuantumRecurrentUnitClass import QuantumRecurrentUnit
+from QuantumRecurrentMemoryUnitClass import QuantumRecurrentUnit
 
 class QuantumRNN(nn.Module):
     def __init__(self, n_qubits, input_dim, hidden_dim, output_dim):
