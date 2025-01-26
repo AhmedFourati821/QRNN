@@ -6,3 +6,5 @@
 - Not quantum recurrent ? x_x
 - Add quantum memory for quantum recurrency
 - Even slower 💀
+- seperate concerns and split into different files instead of mother file
+- fix bugs and test again
