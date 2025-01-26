@@ -1,6 +1,8 @@
 from parse_data import get_train_test_data
 from train import train_qrnn
 from QRNN.QuantumRNNClass import QuantumRNN
+import torch
+from Initialize_qubits import initialize_qubits
 
 if __name__ == "__main__":
     # Load dataset
@@ -8,7 +10,7 @@ if __name__ == "__main__":
     train_X, train_y, test_X, test_y = get_train_test_data(dataset_name)
 
     # Initialize the model
-    n_qubits = 4
+    n_qubits = initialize_qubits()
     input_dim = train_X.shape[1]
     hidden_dim = 4
     output_dim = len(torch.unique(train_y))
