@@ -1,6 +1,7 @@
 from datasets import load_dataset
 from sklearn.feature_extraction.text import CountVectorizer
 import torch
+from Initialize_qubits import initialize_qubits
 
 
 def get_train_test_data(dataset_name: str):
@@ -11,6 +12,8 @@ def get_train_test_data(dataset_name: str):
     test_texts = dataset["test"]["text"]
     test_labels = dataset["test"]["label"]
 
+
+    n_qubits = initialize_qubits()
     vectorizer = CountVectorizer(max_features=n_qubits)  # Limit to n_qubits
     train_X = vectorizer.fit_transform(train_texts).toarray()
     test_X = vectorizer.transform(test_texts).toarray()

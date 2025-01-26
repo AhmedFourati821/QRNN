@@ -1,7 +1,8 @@
 import pennylane as qml
 from pennylane import numpy as np
+from Initialize_qubits import initialize_qubits
 
-n_qubits = 4  # Number of qubits
+n_qubits = initialize_qubits()  # Number of qubits
 dev = qml.device("default.qubit", wires=n_qubits)
 
 
