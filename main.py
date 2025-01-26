@@ -1,6 +1,6 @@
 from parse_data import get_train_test_data
 from train import train_qrnn
-from QRNN.QuantumRNNClass import QuantumRNN
+from QuantumRNNClass import QuantumRNN
 import torch
 from Initialize_qubits import initialize_qubits
 
