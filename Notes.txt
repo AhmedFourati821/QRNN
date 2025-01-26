@@ -8,3 +8,4 @@
 - Even slower 💀
 - seperate concerns and split into different files instead of mother file
 - fix bugs and test again
+- Implement methods for better results
