@@ -1,0 +1,8 @@
+- Data parsing mistakes
+- Dimensions aren't fitting
+- Number of circuits problem due to n_qubits?
+- Slow :o
+- Less n_qubits better
+- Not quantum recurrent ? x_x
+- Add quantum memory for quantum recurrency
+- Even slower 💀

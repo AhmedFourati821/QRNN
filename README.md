@@ -1,2 +1,1 @@
-# QRNN
-Quantum recurrent neural networ
+pip install pennylane torch datasets
