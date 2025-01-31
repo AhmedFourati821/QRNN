@@ -1,32 +1,36 @@
-from quantum_cirucit import quantum_circuit_with_memory
+from quantum_cirucit import initialize_circuit
 import torch
 from torch import nn
+import pennylane as qml
+
+dev, quantum_circuit_with_memory, n_qubits = initialize_circuit()
+
+quantum_layer = qml.qnn.TorchLayer(
+    qml.QNode(quantum_circuit_with_memory, dev, interface="torch"),
+    weight_shapes={"weights": (n_qubits,)},
+)
+
 
 class QuantumRecurrentUnit(nn.Module):
     def __init__(self, n_qubits, input_dim):
         super().__init__()
         self.n_qubits = n_qubits
-        self.weight = nn.Parameter(torch.randn(n_qubits))
+        self.quantum_layer = quantum_layer
 
     def forward(self, x):
-        batch_size, time_steps, _ = x.shape
-        prev_state = torch.zeros(batch_size, self.n_qubits, dtype=torch.float32)  # Initialize quantum memory
         quantum_outputs = []
 
-        for t in range(time_steps):  # Iterate over time steps
-            truncated_input = x[:, t, :self.n_qubits]  # Limit input features to number of qubits
+        for t in range(x.shape[1]):  # Iterate over time steps
+            truncated_input = x[:, t, : self.n_qubits]  # Ensure correct input shape
 
-            # Process each sample in the batch
-            batch_outputs = []
-            for b in range(batch_size):
-                quantum_out = quantum_circuit_with_memory(prev_state[b], truncated_input[b], self.weight)
-                quantum_out = torch.tensor(quantum_out, dtype=torch.float32)  # Convert to tensor
-                batch_outputs.append(quantum_out)
+            # Process each sample in the batch individually
+            batch_outputs = torch.stack(
+                [
+                    self.quantum_layer(truncated_input[i])
+                    for i in range(truncated_input.shape[0])
+                ]
+            )
 
-            # Stack batch outputs and update the quantum memory
-            batch_outputs = torch.stack(batch_outputs)
-            prev_state = batch_outputs  # Update quantum memory
             quantum_outputs.append(batch_outputs)
 
-        # Stack outputs across time steps
         return torch.stack(quantum_outputs, dim=1)

@@ -1,2 +1,2 @@
 def initialize_qubits():
-    return 4
+    return 8
