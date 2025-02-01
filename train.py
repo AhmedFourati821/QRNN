@@ -1,52 +1,70 @@
 import torch
 from torch import nn
 from torch.utils.data import DataLoader, TensorDataset
+from torch.optim.lr_scheduler import StepLR
 
 
-def train_qrnn(
+def train_quantum_rnn(
     model,
-    train_X,
-    train_y,
-    test_X,
-    test_y,
-    epochs=10,
-    batch_size=32,
-    learning_rate=0.01,
+    train_data,
+    train_labels,
+    test_data,
+    test_labels,
+    epochs=20,
+    batch_size=16,
+    lr=0.001,
 ):
-    # Create DataLoader for training data
-    train_dataset = TensorDataset(train_X, train_y)
+
+    # Loss function for classification
+    loss_fn = torch.nn.BCEWithLogitsLoss()
+
+    # Create DataLoaders
+    train_dataset = TensorDataset(train_data, train_labels)
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 
-    # Define optimizer and loss function
-    optimizer = torch.optim.AdamW(model.parameters(), lr=0.0003, weight_decay=1e-4)
-    criterion = nn.CrossEntropyLoss()
+    test_dataset = TensorDataset(test_data, test_labels)
+    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
+
+    # Optimizer
+    optimizer = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=1e-4)
+    scheduler = StepLR(optimizer, step_size=15, gamma=0.1)
 
     # Training loop
     for epoch in range(epochs):
         model.train()
-        total_loss = 0
-
-        for batch_X, batch_y in train_loader:
+        epoch_loss = 0.0
+        correct, total = 0, 0
+        for batch_inputs, batch_targets in train_loader:
             optimizer.zero_grad()
-
-            # Forward pass
-            outputs = model(batch_X)
-            loss = criterion(outputs, batch_y)
-
-            # Backward pass and optimization
+            outputs = model(batch_inputs).squeeze(1)
+            loss = loss_fn(outputs, batch_targets.float())
             loss.backward()
-            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=0.3)
+            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
             optimizer.step()
 
-            total_loss += loss.item()
+            epoch_loss += loss.item()
 
-        # Print epoch loss
-        print(f"Epoch {epoch + 1}/{epochs}, Loss: {total_loss / len(train_loader):.4f}")
+            # Accuracy Calculation
+            predicted = (torch.sigmoid(outputs) > 0.5).long()  # Convert logits to 0/1
+            correct += (predicted == batch_targets).sum().item()
+            total += batch_targets.size(0)
+        train_acc = 100 * correct / total
+        scheduler.step()
+        print(
+            f"Epoch {epoch+1}/{epochs}, Loss: {epoch_loss / len(train_loader):.4f}, Train Acc: {train_acc:.2f}%"
+        )
 
-    # Evaluate the model on test data
+    # Evaluate on Test Data
     model.eval()
+    correct, total = 0, 0
     with torch.no_grad():
-        test_outputs = model(test_X)
-        _, predictions = torch.max(test_outputs, dim=1)
-        accuracy = (predictions == test_y).float().mean()
-        print(f"Test Accuracy: {accuracy.item() * 100:.2f}%")
+        for batch_inputs, batch_targets in test_loader:
+            outputs = model(batch_inputs).squeeze(1)
+            predicted = (torch.sigmoid(outputs) > 0.5).long()  # Convert logits to 0/1
+            correct += (predicted == batch_targets).sum().item()
+            total += batch_targets.size(0)
+
+    test_acc = 100 * correct / total
+    print(f"Test Accuracy: {test_acc:.2f}%")
+
+    print("Training complete!")
