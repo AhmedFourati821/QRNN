@@ -2,7 +2,7 @@ import pennylane as qml
 from Initialize_qubits import initialize_qubits
 
 n_qubits = initialize_qubits()  # Number of qubits
-dev = qml.device("lightning.qubit", wires=n_qubits)
+dev = qml.device("default.qubit", wires=n_qubits)
 
 
 # Adding quantum memory to propagate information across time steps
