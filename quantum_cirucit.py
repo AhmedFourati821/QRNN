@@ -1,5 +1,4 @@
 import pennylane as qml
-from pennylane import numpy as np
 from Initialize_qubits import initialize_qubits
 
 n_qubits = initialize_qubits()  # Number of qubits
