@@ -1,1 +1,1 @@
-pip install pennylane torch datasets
+pip install pennylane torch datasets gensim
