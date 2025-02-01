@@ -7,9 +7,9 @@ def train_qrnn(model, train_X, train_y, test_X, test_y, epochs=10, batch_size=32
     train_dataset = TensorDataset(train_X, train_y)
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 
-    # Initialize loss function and optimizer
+    # Define optimizer and loss function
+    optimizer = torch.optim.AdamW(model.parameters(), lr=0.0003, weight_decay=1e-4)
     criterion = nn.CrossEntropyLoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
     # Training loop
     for epoch in range(epochs):
@@ -25,6 +25,7 @@ def train_qrnn(model, train_X, train_y, test_X, test_y, epochs=10, batch_size=32
 
             # Backward pass and optimization
             loss.backward()
+            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=0.3)
             optimizer.step()
 
             total_loss += loss.item()
