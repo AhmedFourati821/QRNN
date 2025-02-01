@@ -1,29 +1,20 @@
 from parse_data import get_train_test_data
-from train import train_qrnn
+from train import train_quantum_rnn
 from QuantumRNNClass import QuantumRNN
 import torch
-from Initialize_qubits import initialize_qubits
 
 if __name__ == "__main__":
     # Load dataset
     dataset_name = "imdb"  # Example dataset
     train_X, train_y, test_X, test_y = get_train_test_data(dataset_name)
 
-    # Initialize the model
-    n_qubits = initialize_qubits()
-    input_dim = train_X.shape[1]
-    hidden_dim = 4
-    output_dim = len(torch.unique(train_y))
-    model = QuantumRNN(n_qubits, input_dim, hidden_dim, output_dim)
+    # Model Initialization
+    n_qubits = 4
+    n_layers = 6
+    input_dim = 100  # GloVe vectors are 100D
+    model = QuantumRNN(n_qubits=n_qubits, input_dim=input_dim, n_layers=n_layers)
 
-    # Train the model
-    train_qrnn(
-        model,
-        train_X,
-        train_y,
-        test_X,
-        test_y,
-        epochs=10,
-        batch_size=32,
-        learning_rate=0.0005,
+    # Train the Quantum RNN
+    train_quantum_rnn(
+        model, train_X, train_y, test_X, test_y, epochs=30, batch_size=32, lr=0.01
     )
