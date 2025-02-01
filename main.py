@@ -17,4 +17,13 @@ if __name__ == "__main__":
     model = QuantumRNN(n_qubits, input_dim, hidden_dim, output_dim)
 
     # Train the model
-    train_qrnn(model, train_X, train_y, test_X, test_y, epochs=10, batch_size=32, learning_rate=0.01)
+    train_qrnn(
+        model,
+        train_X,
+        train_y,
+        test_X,
+        test_y,
+        epochs=10,
+        batch_size=32,
+        learning_rate=0.0005,
+    )

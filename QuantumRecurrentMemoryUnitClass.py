@@ -9,6 +9,8 @@ quantum_layer = qml.qnn.TorchLayer(
     qml.QNode(quantum_circuit_with_memory, dev, interface="torch"),
     weight_shapes={"weights": (n_qubits,)},
 )
+
+
 class QuantumRecurrentUnit(nn.Module):
     def __init__(self, n_qubits, input_dim):
         super().__init__()
@@ -20,10 +22,13 @@ class QuantumRecurrentUnit(nn.Module):
         quantum_outputs = []
 
         for t in range(time_steps):
-            truncated_input = x[:, t, :self.n_qubits]
-            batch_outputs = torch.stack([
-                self.quantum_layer(truncated_input[i]) for i in range(truncated_input.shape[0])
-            ])
+            truncated_input = x[:, t, : self.n_qubits]
+            batch_outputs = torch.stack(
+                [
+                    self.quantum_layer(truncated_input[i])
+                    for i in range(truncated_input.shape[0])
+                ]
+            )
             quantum_outputs.append(batch_outputs)
 
         # Stack outputs across time steps

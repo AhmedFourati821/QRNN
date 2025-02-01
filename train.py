@@ -2,7 +2,17 @@ import torch
 from torch import nn
 from torch.utils.data import DataLoader, TensorDataset
 
-def train_qrnn(model, train_X, train_y, test_X, test_y, epochs=10, batch_size=32, learning_rate=0.01):
+
+def train_qrnn(
+    model,
+    train_X,
+    train_y,
+    test_X,
+    test_y,
+    epochs=10,
+    batch_size=32,
+    learning_rate=0.01,
+):
     # Create DataLoader for training data
     train_dataset = TensorDataset(train_X, train_y)
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)

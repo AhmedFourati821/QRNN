@@ -2,6 +2,7 @@ import torch
 from torch import nn
 from quantum_cirucit import quantum_circuit
 
+
 class QuantumRecurrentUnit(nn.Module):
     def __init__(self, n_qubits, input_dim):
         super().__init__()
@@ -11,7 +12,7 @@ class QuantumRecurrentUnit(nn.Module):
     def forward(self, x):
         quantum_outputs = []
         for t in range(x.shape[1]):  # Iterate over time steps
-            truncated_input = x[:, t, :self.n_qubits]
+            truncated_input = x[:, t, : self.n_qubits]
 
             # Process each sample in the batch
             batch_outputs = []
