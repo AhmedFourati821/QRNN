@@ -1,38 +1,28 @@
 import torch
 from torch import nn
-from QuantumRecurrentMemoryUnitClass import QuantumRecurrentUnit
-from QuantumFCLayer import quantum_fc_torch
+from QuantumRecurrentUnitClass import QuantumRecurrentUnit
 import pennylane as qml
 
+
 class QuantumRNN(nn.Module):
-    def __init__(self, n_qubits, input_dim, hidden_dim, output_dim):
+    def __init__(self, n_qubits, input_dim, n_layers):
         super().__init__()
-        self.qru = QuantumRecurrentUnit(n_qubits, input_dim)
-        dev_fc = qml.device("lightning.qubit", wires=n_qubits)
-        @qml.qnode(dev_fc, interface="torch")
-        def quantum_fc_layer(inputs, weights):
-            for i in range(n_qubits):
-                qml.RY(inputs[i], wires=i)  
+        self.n_qubits = n_qubits
+        self.input_dim = input_dim
+        self.n_layers = n_layers
+        self.qru = QuantumRecurrentUnit(n_qubits, n_layers)
 
-            for i in range(n_qubits):
-                qml.RY(weights[i], wires=i)
-                qml.CZ(wires=[i, (i + 1) % n_qubits])
-
-            return [qml.expval(qml.PauliZ(i)) for i in range(n_qubits)]
-
-        quantum_fc_torch = qml.qnn.TorchLayer(
-            quantum_fc_layer, weight_shapes={"weights": (n_qubits,)}
-        )
-        self.quantum_fc = quantum_fc_torch
-        self.dropout = nn.Dropout(0.3)
+        self.clayer = torch.nn.Linear(input_dim, n_qubits)
+        self.output_layer = torch.nn.Linear(n_qubits, 1)
 
     def forward(self, x):
-        x = self.qru(x)  # Quantum RNN
-        x = self.dropout(x)
-        results = []
-        for i in range(x.shape[0]):
-            results.append(
-                self.quantum_fc(x[i][0])
-            )  # Apply quantum function to single input
+        x = self.clayer(x)
 
-        return torch.stack(results)
+        x_split = torch.split(x, self.input_dim // self.n_qubits, dim=1)
+        x_split = list(x_split)  # Convert tuple to list
+
+        for i in range(len(x_split)):
+            x_split[i] = self.qru(x_split[i])
+
+        x = torch.cat(x_split, axis=1)
+        return self.output_layer(x).squeeze(1)
