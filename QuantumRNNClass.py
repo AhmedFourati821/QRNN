@@ -17,12 +17,5 @@ class QuantumRNN(nn.Module):
 
     def forward(self, x):
         x = self.clayer(x)
-
-        x_split = torch.split(x, self.input_dim // self.n_qubits, dim=1)
-        x_split = list(x_split)  # Convert tuple to list
-
-        for i in range(len(x_split)):
-            x_split[i] = self.qru(x_split[i])
-
-        x = torch.cat(x_split, axis=1)
+        x = self.qru()
         return self.output_layer(x).squeeze(1)
