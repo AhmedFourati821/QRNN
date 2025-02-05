@@ -27,7 +27,7 @@ def train_quantum_rnn(
 
     # Optimizer
     optimizer = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=1e-4)
-    scheduler = StepLR(optimizer, step_size=15, gamma=0.1)
+    scheduler = StepLR(optimizer, step_size=5, gamma=0.5)
 
     # Training loop
     for epoch in range(epochs):

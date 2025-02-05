@@ -16,5 +16,5 @@ if __name__ == "__main__":
 
     # Train the Quantum RNN
     train_quantum_rnn(
-        model, train_X, train_y, test_X, test_y, epochs=30, batch_size=16, lr=0.03
+        model, train_X, train_y, test_X, test_y, epochs=30, batch_size=16, lr=0.01
     )
